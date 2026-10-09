@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Progression Risk Calculator</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f3f2ee;  --surface: #fcfcfb;  --field: #ffffff;  --auto: #f1f0ec;
+  --ink: #0b0b0b; --ink2: #52514e;     --ink3: #6f6e68;
+  --line: #e3e1da; --line2: #cfcdc4;   --grid: #ebeae4;
+  --up: #e34948;  --down: #2a78d6;     --warn: #eda100;  --err: #d03b3b;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --field: #222220; --auto: #242422;
+    --ink: #ffffff; --ink2: #c3c2b7;  --ink3: #9a998f;
+    --line: #2e2e2b; --line2: #403f3b; --grid: #262624;
+    --up: #e66767;  --down: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --field: #222220; --auto: #242422;
+  --ink: #ffffff; --ink2: #c3c2b7;  --ink3: #9a998f;
+  --line: #2e2e2b; --line2: #403f3b; --grid: #262624;
+  --up: #e66767;  --down: #3987e5;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 96px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 17px; margin: 0; }
+h3 { font-size: 13px; margin: 22px 0 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink2); }
+p { margin: 0; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink3); margin-bottom: 6px; }
+.sub { color: var(--ink2); max-width: 62ch; }
+.top { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line2); border-radius: 999px; padding: 4px 12px; font-size: 12px; color: var(--ink2); background: var(--surface); white-space: nowrap; }
+
+.layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(440px, 520px); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.actions { display: flex; gap: 8px; }
+.hint { color: var(--ink3); font-size: 13px; margin-top: 6px; }
+
+.btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--ink); background: var(--ink); color: var(--surface); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line2); }
+.btn:hover { opacity: .88; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- inputs ---------- */
+.grid4 { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.field label { display: block; font-size: 13px; color: var(--ink2); margin-bottom: 4px; }
+.field .sub2 { font-size: 12px; color: var(--ink3); margin-top: 3px; }
+input[type=number], select {
+  width: 100%; height: 36px; padding: 0 10px; font: inherit; color: var(--ink);
+  background: var(--field); border: 1px solid var(--line2); border-radius: 6px;
+}
+input[type=number] { font-variant-numeric: tabular-nums; }
+input.warn { border-color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
+input.err  { border-color: var(--err);  box-shadow: inset 0 0 0 1px var(--err); }
+.dcell { position: relative; }
+.dcell input, .dcell select { background: var(--auto); font-style: italic; color: var(--ink2); }
+.dcell.manual input, .dcell.manual select { background: var(--field); font-style: normal; color: var(--ink); border-style: dashed; border-color: var(--ink); }
+.dcell .reset { display: none; position: absolute; right: 4px; top: 4px; height: 28px; padding: 0 7px; font-size: 12px;
+  border: 1px solid var(--line2); border-radius: 5px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.dcell.manual .reset { display: block; }
+.dcell.manual input { padding-right: 62px; }
+
+table.labs { width: 100%; border-collapse: collapse; }
+.labs th { text-align: left; font-size: 12px; font-weight: 600; color: var(--ink2); padding: 0 8px 8px 0; vertical-align: bottom; }
+.labs th small { display: block; font-weight: 400; color: var(--ink3); }
+.labs td { padding: 7px 8px 7px 0; border-top: 1px solid var(--line); vertical-align: middle; }
+.labs td.name strong { display: block; font-weight: 600; }
+.labs td.name span { display: block; font-size: 12px; color: var(--ink3); line-height: 1.35; }
+.labs td.na { color: var(--ink3); font-size: 13px; }
+.labs th:nth-child(1) { width: 17%; } .labs th:nth-child(2), .labs th:nth-child(3) { width: 12%; } .labs th:nth-child(4) { width: 12%; } .labs th:nth-child(5), .labs th:nth-child(6) { width: 23.5%; }
+.labs select { font-size: 13px; padding: 0 6px; }
+
+@media (max-width: 860px) {
+  .labs thead { display: none; }
+  .labs, .labs tbody { display: block; }
+  .labs tr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .labs td { display: block; border: 0; padding: 0; }
+  .labs td.name { grid-column: 1 / -1; }
+  .labs td[data-label]::before { content: attr(data-label); display: block; font-size: 12px; color: var(--ink2); margin-bottom: 3px; }
+}
+
+/* ---------- results ---------- */
+@media (min-width: 1080px) { .results { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; } }
+.score-block { margin: 14px 0 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.score-label { font-size: 13px; color: var(--ink2); }
+.score { font-size: 44px; line-height: 1.1; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.score-ref { font-size: 13px; color: var(--ink2); margin-top: 4px; }
+.callout { border-left: 3px solid var(--warn); background: var(--bg); padding: 10px 12px; font-size: 13px; color: var(--ink); border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+.callout b { font-weight: 650; }
+.notes { display: grid; gap: 6px; margin-bottom: 4px; }
+.note { font-size: 13px; color: var(--ink2); padding-left: 18px; position: relative; }
+.note::before { content: ""; position: absolute; left: 3px; top: 6px; width: 8px; height: 8px; border-radius: 2px; background: var(--warn); }
+.note.err::before { background: var(--err); border-radius: 50%; }
+.note.info::before { background: var(--ink3); }
+
+.wf-head { display: flex; justify-content: space-between; align-items: end; gap: 8px; flex-wrap: wrap; }
+.wf-head h3 { margin: 18px 0 0; }
+.controls { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.controls select { width: auto; height: 30px; font-size: 13px; padding: 0 6px; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink2); margin: 8px 0 10px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 12px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.sw-up { background: var(--up); } .sw-down { background: var(--down); }
+
+/* waterfall (HTML/CSS so labels stay readable on phones) */
+.wf { position: relative; --lw: 218px; }
+.wf-grid { position: absolute; top: 0; bottom: 34px; left: var(--lw); right: 0; pointer-events: none; }
+.wf-grid .gl { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.wf-grid .bl { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--ink3); }
+.wf-row { display: grid; grid-template-columns: var(--lw) minmax(0, 1fr); align-items: center; min-height: 30px; position: relative; }
+.wf-row:focus-visible { outline-offset: -2px; }
+.wf-row:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.wf-label { padding-right: 10px; text-align: right; font-size: 13px; line-height: 1.25; overflow: hidden; }
+.wf-label .n { display: block; color: var(--ink); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.wf-label .v { display: block; color: var(--ink3); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.wf-label .v.na { font-style: italic; }
+.wf-plot { position: relative; height: 30px; }
+.bar { position: absolute; top: 8px; height: 14px; min-width: 2px; border-radius: 3px; }
+.bar.up { background: var(--up); } .bar.down { background: var(--down); }
+.val { position: absolute; top: 5px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; line-height: 20px; }
+.mk { position: absolute; top: 5px; width: 3px; height: 20px; background: var(--ink); border-radius: 1px; transform: translateX(-1.5px); }
+.wf-row.edge .wf-label .n { font-weight: 650; }
+.wf-axis { position: relative; height: 30px; margin-left: var(--lw); border-top: 1px solid var(--line2); }
+.wf-axis .tk { position: absolute; top: 3px; transform: translateX(-50%); font-size: 11px; color: var(--ink3); text-align: center; line-height: 1.25; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.axis-cap { margin-left: var(--lw); font-size: 11px; color: var(--ink3); margin-top: 2px; }
+@media (max-width: 560px) {
+  .wf { --lw: 0px; }
+  .wf-row { grid-template-columns: 1fr; }
+  .wf-label { text-align: left; padding: 6px 0 0; }
+  .wf-label .n, .wf-label .v { display: inline; margin-right: 8px; }
+  .wf-plot { height: 26px; }
+  .bar { top: 5px; } .val { top: 3px; } .mk { top: 3px; }
+  .wf-grid { bottom: 30px; }
+}
+table.ctable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.ctable th { text-align: left; font-weight: 600; color: var(--ink2); padding: 4px 8px 6px 0; border-bottom: 1px solid var(--line2); }
+.ctable td { padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ctable td.num, .ctable th.num { text-align: right; }
+
+#tip { position: fixed; z-index: 20; pointer-events: none; max-width: 300px; padding: 8px 10px; font-size: 12px; line-height: 1.4;
+  background: var(--ink); color: var(--surface); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.25); display: none; }
+#tip b { font-weight: 650; }
+
+.about { margin-top: 16px; }
+.about details { border-top: 1px solid var(--line); padding: 10px 0; }
+.about details:first-of-type { border-top: 0; }
+.about summary { cursor: pointer; font-weight: 600; }
+.about p, .about li { color: var(--ink2); font-size: 14px; margin-top: 8px; }
+.about ul { margin: 6px 0 0; padding-left: 20px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin-top: 8px; font-size: 14px; }
+.kv dt { color: var(--ink3); } .kv dd { margin: 0; }
+
+.fatal { border: 1px solid var(--err); border-radius: var(--radius); padding: 16px; background: var(--surface); }
+.minibar { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; padding: 10px 16px;
+  background: var(--surface); border-top: 1px solid var(--line2); justify-content: space-between; align-items: center; gap: 12px; }
+.minibar b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.minibar a { color: var(--ink); font-size: 13px; }
+@media (max-width: 1079px) { .minibar { display: flex; } }
+@media print { .minibar, .actions, .controls { display: none !important; } .results { position: static; max-height: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Research tool &middot; runs entirely in your browser, nothing is sent anywhere</p>
+      <h1 id="title">Progression risk calculator</h1>
+      <p class="sub" id="subtitle">Enter the patient's data to see the model's estimate and which factors push it up or down.</p>
+    </div>
+    <span class="chip">Research use only &middot; not a medical device</span>
+  </header>
+
+  <div id="fatal" class="fatal" hidden></div>
+
+  <div class="layout" id="app" hidden>
+    <section class="card inputs" aria-labelledby="h-in">
+      <div class="card-head">
+        <h2 id="h-in">Patient data</h2>
+        <div class="actions">
+          <button class="btn ghost" id="btn-example" type="button">Fill with typical values</button>
+          <button class="btn ghost" id="btn-clear" type="button">Clear all</button>
+        </div>
+      </div>
+      <p class="hint">Leave a field empty if the value is unknown. Shaded italic fields (change and status) are calculated automatically; you can overwrite them, and clear a field or press &ldquo;auto&rdquo; to go back to the calculated value.</p>
+
+      <h3>Demographics and history</h3>
+      <div class="grid4" id="plain-fields"></div>
+
+      <h3>Laboratory tests</h3>
+      <table class="labs" id="labs">
+        <thead>
+          <tr>
+            <th class="col-name">Test</th>
+            <th>1st result</th>
+            <th>2nd result</th>
+            <th>Change<small>2nd &minus; 1st</small></th>
+            <th>Status, 1st<small>vs reference range</small></th>
+            <th>Status, 2nd<small>vs reference range</small></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <aside class="card results" id="results" aria-labelledby="h-res">
+      <h2 id="h-res">Result</h2>
+      <div class="score-block" aria-live="polite">
+        <div class="score-label" id="score-label"></div>
+        <div class="score" id="score">&ndash;</div>
+        <div class="score-ref" id="score-ref"></div>
+      </div>
+      <div class="callout" id="calib-note" hidden></div>
+      <div class="notes" id="notes"></div>
+
+      <div class="wf-head">
+        <h3>What drives this result</h3>
+        <div class="controls">
+          <label for="topn" class="hint" style="margin:0">Show</label>
+          <select id="topn" aria-label="Number of features to show">
+            <option value="5">top 5</option>
+            <option value="10" selected>top 10</option>
+            <option value="20">top 20</option>
+            <option value="all">all features</option>
+          </select>
+          <button class="btn ghost" id="btn-table" type="button" aria-pressed="false">Table view</button>
+        </div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw-up"></i><span id="lg-up">raises the score (+)</span></span>
+        <span><i class="sw-down"></i><span id="lg-down">lowers the score (&minus;)</span></span>
+      </div>
+      <div id="wf"></div>
+      <div id="tbl" hidden></div>
+    </aside>
+  </div>
+
+  <section class="card about" id="about" hidden></section>
+</div>
+
+<div class="minibar" id="minibar" hidden><span id="mini-text">Result</span><a href="#results">See explanation &darr;</a></div>
+<div id="tip" role="tooltip"></div>
+
+<script src="derive.js"></script>
+<script src="treeshap.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ======================= text you may want to edit ======================= */
+  var TEXT = {
+    subtitle: "Enter the patient's data to see the model's estimate and which factors push it up or down.",
+    outcome: "progression",
+    disclaimer: "This tool is provided for research purposes only. It is not a medical device, has not been validated for clinical decision-making, and must not be used as the sole basis for any diagnostic or treatment decision."
+  };
+  var LABS = {               // display names and units (units are not stored in config.json)
+    ALC:                  { name: "Absolute lymphocyte count", short: "ALC",              unit: "×10⁹/L" },
+    PHOSPHATASE_ALKALINE: { name: "Alkaline phosphatase",      short: "Alk. phosphatase", unit: "U/L" },
+    ALBUMIN:              { name: "Albumin",                   short: "Albumin",          unit: "g/dL" },
+    PROTEIN_TOTAL:        { name: "Total protein",             short: "Total protein",    unit: "g/dL" },
+    Lymp_Percent:         { name: "Lymphocytes",               short: "Lymphocytes %",    unit: "%" },
+    WBC:                  { name: "White blood cells",         short: "WBC",              unit: "×10⁹/L" },
+    HBG:                  { name: "Hemoglobin",                short: "Hemoglobin",       unit: "g/dL" },
+    PLT:                  { name: "Platelets",                 short: "Platelets",        unit: "×10⁹/L" }
+  };
+  var PLAIN = {
+    Age:                     { name: "Age", unit: "years", max: 120 },
+    Sex:                     { name: "Sex" },
+    prev_Malig_10y:          { name: "Previous malignancy", unit: "past 10 years", count: true },
+    prev_Infection_Hospt_5Y: { name: "Hospitalized infection", unit: "past 5 years", count: true }
+  };
+  var STATUS = ["Below range", "In range", "Above range"];
+
+  /* ================================ helpers ================================ */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  function h(tag, attrs) {
+    var e = document.createElement(tag);
+    for (var k in (attrs || {})) {
+      if (k === "text") e.textContent = attrs[k];
+      else if (k === "class") e.className = attrs[k];
+      else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i]; if (c == null) continue;
+      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    }
+    return e;
+  }
+  var sigmoid = function (z) { return 1 / (1 + Math.exp(-z)); };
+  function fmtScore(s) { return s < 0.01 ? s.toFixed(4) : (s < 0.1 ? s.toFixed(3) : s.toFixed(2)); }
+  function fmtPct(s) { var p = s * 100; return (p < 0.1 ? p.toFixed(2) : (p < 10 ? p.toFixed(1) : String(Math.round(p)))) + "%"; }
+  function trim(v, d) { return String(+(+v).toFixed(d)); }
+  function signed(v, d) { var s = (+v).toFixed(d); return (v >= 0 ? "+" : "−") + s.replace("-", ""); }
+  function parseName(n) {
+    var m;
+    if ((m = n.match(/^(.*)_value_(1st|2nd)$/))) return { lab: m[1], part: "value", which: m[2] };
+    if ((m = n.match(/^(.*)_Delta$/)))            return { lab: m[1], part: "delta" };
+    if ((m = n.match(/^(.*)_status_(1st|2nd)$/))) return { lab: m[1], part: "status", which: m[2] };
+    return { lab: null, part: "plain" };
+  }
+
+  /* ================================= start ================================= */
+  Promise.all([
+    fetch("config.json").then(function (r) { if (!r.ok) throw new Error("config.json: HTTP " + r.status); return r.json(); }),
+    fetch("model.json").then(function (r) { if (!r.ok) throw new Error("model.json: HTTP " + r.status); return r.json(); })
+  ]).then(function (res) { start(res[0], res[1]); })
+    .catch(function (e) {
+      var f = $("#fatal"); f.hidden = false;
+      f.appendChild(h("p", { text: "The calculator could not load its data files (" + e.message + ")." }));
+      f.appendChild(h("p", { class: "hint", text: "If you opened this page by double-clicking the file, browsers block loading local files. Serve the folder with a web server (for example: python -m http.server) or use the GitHub Pages address." }));
+    });
+
+  function start(config, modelJson) {
+    var model = TreeSHAP.load(modelJson);
+    if (model.featureNames && JSON.stringify(model.featureNames) !== JSON.stringify(config.feature_order)) {
+      throw new Error("Feature order in model.json does not match config.json");
+    }
+    var F = {};                                   // feature metadata by name
+    config.features.forEach(function (f) { F[f.name] = f; });
+    var cal = config.calibration || { method: "none" };
+    var calA = cal.method === "none" ? 0 : cal.intercept, calB = cal.method === "none" ? 1 : cal.slope;
+    var calibrated = cal.method !== "none";
+
+    document.title = config.model.name + " calculator";
+    $("#title").textContent = config.model.name.replace(/ model$/i, "") + " calculator";
+    $("#subtitle").textContent = TEXT.subtitle;
+
+    /* ---- sex labels, read from the sex-specific reference ranges ---- */
+    var sexLabel = {};
+    config.features.forEach(function (f) {
+      if (f.rule && f.rule.by && f.rule.ranges) {
+        Object.keys(f.rule.ranges).forEach(function (code) {
+          sexLabel[code] = f.rule.ranges[code].sex === "M" ? "Male" : "Female";
+        });
+      }
+    });
+
+    /* ---- titles and value text ---- */
+    function title(name) {
+      var p = parseName(name);
+      if (p.lab) {
+        var L0 = LABS[p.lab] || { name: p.lab }, ln = L0.short || L0.name;
+        if (p.part === "value") return ln + ", " + p.which + " test";
+        if (p.part === "delta") return ln + ", change";
+        return ln + ", " + p.which + " status";
+      }
+      return (PLAIN[name] || { name: name }).name;
+    }
+    function unitOf(name) {
+      var p = parseName(name);
+      if (p.lab && p.part !== "status") return (LABS[p.lab] || {}).unit || "";
+      return "";
+    }
+    function valueText(name, v) {
+      if (v === null || v === undefined || v !== v) return null;
+      var p = parseName(name);
+      if (p.part === "status") return STATUS[v];
+      if (name === "Sex") return sexLabel[String(v)] || String(v);
+      var u = unitOf(name) || (PLAIN[name] && PLAIN[name].unit && !PLAIN[name].count ? PLAIN[name].unit : "");
+      return trim(v, 2) + (u ? " " + u : "");
+    }
+
+    /* =============================== build form =============================== */
+    var fields = {};                              // name -> {kind, input, wrap, ...}
+    var manual = {};                              // user-typed values for derived fields
+
+    var plainBox = $("#plain-fields");
+    config.primary_features.forEach(function (name) {
+      if (parseName(name).lab) return;
+      var meta = PLAIN[name] || { name: name };
+      var id = "f-" + name, f = F[name], input;
+      if (name === "Sex") {
+        input = h("select", { id: id }, h("option", { value: "", text: "Not entered" }));
+        f.levels.map(function (l) { return { v: l.value, t: sexLabel[String(l.value)] || l.label }; })
+          .sort(function (a, b) { return a.t < b.t ? -1 : 1; })
+          .forEach(function (o) { input.appendChild(h("option", { value: String(o.v), text: o.t })); });
+        fields[name] = { kind: "select", input: input };
+      } else {
+        input = h("input", { id: id, type: "number", inputmode: "decimal", min: "0", step: meta.count || name === "Age" ? "1" : "any" });
+        if (meta.max) input.setAttribute("max", String(meta.max));
+        fields[name] = { kind: "number", input: input, min: 0, max: meta.max };
+      }
+      var sub = (f.soft_min !== undefined && f.soft_max !== undefined && meta.name !== "Sex")
+        ? "Typical range " + f.soft_min + "–" + f.soft_max : "";
+      plainBox.appendChild(h("div", { class: "field" },
+        h("label", { for: id, text: meta.name + (meta.unit ? " (" + meta.unit + ")" : "") }),
+        input, sub ? h("div", { class: "sub2", text: sub }) : null));
+    });
+
+    /* lab table */
+    var labs = [];
+    config.primary_features.forEach(function (n) {
+      var p = parseName(n); if (p.lab && labs.indexOf(p.lab) < 0) labs.push(p.lab);
+    });
+    var tbody = $("#labs tbody");
+    function numInput(name, label, derived) {
+      var f = F[name];
+      var input = h("input", { type: "number", inputmode: "decimal", step: "any", "aria-label": label });
+      if (!derived) {
+        input.setAttribute("min", "0");
+        if (f.soft_min !== undefined) input.title = "Typical range in the development data: " + f.soft_min + "–" + f.soft_max + " (median " + f.median + ")";
+        fields[name] = { kind: "number", input: input, min: 0 };
+        return input;
+      }
+      var reset = h("button", { type: "button", class: "reset", text: "↺ auto", title: "Go back to the calculated value" });
+      var wrap = h("div", { class: "dcell" }, input, reset);
+      fields[name] = { kind: "dnumber", input: input, wrap: wrap, reset: reset, decimals: f.rule.decimals };
+      return wrap;
+    }
+    function statusSelect(name, label) {
+      var sel = h("select", { "aria-label": label }, h("option", { value: "", text: "– (auto)" }));
+      STATUS.forEach(function (t, i) { sel.appendChild(h("option", { value: String(i), text: t })); });
+      var reset = h("button", { type: "button", class: "reset", text: "↺ auto", title: "Go back to the calculated value" });
+      var wrap = h("div", { class: "dcell" }, sel, reset);
+      fields[name] = { kind: "dselect", input: sel, wrap: wrap, reset: reset };
+      return wrap;
+    }
+    function refText(lab) {
+      var f = F[lab + "_status_1st"]; if (!f) return "";
+      var r = f.rule;
+      if (r.by) {
+        return "Ref. " + Object.keys(r.ranges).map(function (c) { return r.ranges[c]; })
+          .sort(function (a, b) { return a.sex < b.sex ? 1 : -1; })
+          .map(function (x) { return x.sex + " " + x.low + "–" + x.high; }).join(" · ");
+      }
+      return "Ref. " + r.low + "–" + r.high;
+    }
+    labs.forEach(function (lab) {
+      var L = LABS[lab] || { name: lab, unit: "" };
+      var tr = h("tr", null,
+        h("td", { class: "name" }, h("strong", { text: L.name }), h("span", { text: L.unit }), h("span", { text: refText(lab) })),
+        h("td", { "data-label": "1st result" }, numInput(lab + "_value_1st", L.name + ", 1st result")),
+        h("td", { "data-label": "2nd result" }, numInput(lab + "_value_2nd", L.name + ", 2nd result")),
+        F[lab + "_Delta"]
+          ? h("td", { "data-label": "Change (2nd − 1st)" }, numInput(lab + "_Delta", L.name + ", change", true))
+          : h("td", { class: "na", text: "–" }),
+        F[lab + "_status_1st"]
+          ? h("td", { "data-label": "Status, 1st" }, statusSelect(lab + "_status_1st", L.name + ", status of 1st result"))
+          : h("td", { class: "na", text: "–" }),
+        F[lab + "_status_2nd"]
+          ? h("td", { "data-label": "Status, 2nd" }, statusSelect(lab + "_status_2nd", L.name + ", status of 2nd result"))
+          : h("td", { class: "na", text: "–" }));
+      tbody.appendChild(tr);
+    });
+
+    /* events */
+    var raf = 0;
+    function schedule() { if (!raf) raf = requestAnimationFrame(function () { raf = 0; update(); }); }
+    Object.keys(fields).forEach(function (name) {
+      var fl = fields[name];
+      fl.input.addEventListener("input", function () {
+        if (fl.kind === "dnumber") {
+          var raw = fl.input.value;
+          if (raw === "" || fl.input.validity.badInput) delete manual[name]; else manual[name] = Number(raw);
+        } else if (fl.kind === "dselect") {
+          if (fl.input.value === "") delete manual[name]; else manual[name] = Number(fl.input.value);
+        }
+        schedule();
+      });
+      if (fl.kind === "dnumber") fl.input.addEventListener("blur", schedule);
+      if (fl.reset) fl.reset.addEventListener("click", function () { delete manual[name]; update(); });
+    });
+    $("#btn-clear").addEventListener("click", function () {
+      manual = {};
+      Object.keys(fields).forEach(function (n) { fields[n].input.value = ""; });
+      update();
+    });
+    $("#btn-example").addEventListener("click", function () {
+      manual = {};
+      config.primary_features.forEach(function (n) {
+        var f = F[n], fl = fields[n];
+        fl.input.value = f.type === "continuous" ? String(f.median) : String(f.impute_value);
+      });
+      update();
+    });
+    $("#topn").addEventListener("change", update);
+    $("#btn-table").addEventListener("click", function () {
+      var on = $("#tbl").hidden;
+      $("#tbl").hidden = !on; $("#wf").hidden = on;
+      $("#btn-table").setAttribute("aria-pressed", String(on));
+      $("#btn-table").textContent = on ? "Chart view" : "Table view";
+    });
+
+    /* ============================= read & compute ============================= */
+    var warnings = [];
+    function readPrimary() {
+      var out = {}; warnings = [];
+      config.primary_features.forEach(function (name) {
+        var fl = fields[name], f = F[name], v = null;
+        fl.input.classList.remove("warn", "err");
+        if (fl.kind === "select") {
+          v = fl.input.value === "" ? null : Number(fl.input.value);
+        } else if (fl.input.value !== "" || fl.input.validity.badInput) {
+          var n = Number(fl.input.value);
+          if (fl.input.validity.badInput || !isFinite(n)) {
+            fl.input.classList.add("err"); warnings.push({ t: "err", s: title(name) + ": not a valid number, treated as missing." });
+          } else if (n < 0 || (fl.max !== undefined && n > fl.max)) {
+            fl.input.classList.add("err");
+            warnings.push({ t: "err", s: title(name) + ": " + n + " is outside the allowed range" + (fl.max !== undefined ? " (0–" + fl.max + ")" : " (must be 0 or more)") + "; treated as missing." });
+          } else {
+            v = n;
+            if (f.type === "continuous" && f.soft_min !== undefined && (n < f.soft_min || n > f.soft_max)) {
+              fl.input.classList.add("warn");
+              warnings.push({ t: "warn", s: title(name) + " = " + trim(n, 2) + " is unusual: the development data mostly covered " + f.soft_min + "–" + f.soft_max + "." });
+            }
+          }
+        }
+        out[name] = v;
+      });
+      return out;
+    }
+
+    function update() {
+      var primary = readPrimary();
+      var res = Derive.resolve(config, primary, manual);
+      var values = res.values, auto = res.auto;
+
+      /* refresh calculated fields */
+      config.derived_features.forEach(function (name) {
+        var fl = fields[name], isManual = manual[name] !== undefined;
+        fl.wrap.classList.toggle("manual", isManual);
+        if (fl.kind === "dnumber") {
+          if (!isManual && document.activeElement !== fl.input) fl.input.value = auto[name] === null ? "" : trim(auto[name], fl.decimals);
+          fl.input.placeholder = "auto";
+        } else {
+          fl.input.options[0].text = auto[name] === null ? "– (auto)" : STATUS[auto[name]] + " (auto)";
+          fl.input.value = isManual ? String(manual[name]) : "";
+        }
+        if (isManual && auto[name] !== null && Math.abs(manual[name] - auto[name]) > 1e-9) {
+          warnings.push({ t: "warn", s: title(name) + " was edited by hand (" + (fl.kind === "dselect" ? STATUS[manual[name]] : trim(manual[name], 3)) +
+            "); the calculated value would be " + (fl.kind === "dselect" ? STATUS[auto[name]] : trim(auto[name], 3)) + ". Inconsistent inputs fall outside how the model was trained." });
+        }
+      });
+
+      var x = Derive.toVector(config, values);
+      var r = model.explain(x);
+      render(r, values, primary);
+    }
+
+    /* ================================ render ================================== */
+    function render(r, values, primary) {
+      var base = calA + calB * r.base, final = calA + calB * r.margin;
+      var score = sigmoid(final), ref = sigmoid(base);
+
+      var entered = config.primary_features.filter(function (n) { return primary[n] !== null; }).length, total = config.primary_features.length;
+      if (entered === 0) {
+        $("#score-label").textContent = calibrated ? "Estimated probability of " + TEXT.outcome : "Model score (uncalibrated, 0–1)";
+        $("#score").textContent = "–";
+        $("#score-ref").textContent = "Enter patient data on the left to see the result.";
+        $("#notes").textContent = ""; $("#wf").textContent = ""; $("#tbl").textContent = "";
+        $("#mini-text").textContent = "Enter patient data"; $("#minibar").hidden = false;
+        $("#calib-note").hidden = calibrated;
+        if (!calibrated) { var n0 = $("#calib-note"); n0.textContent = ""; n0.appendChild(h("b", { text: "Not a probability. " })); n0.appendChild(document.createTextNode("This score is the model's raw output (see About this tool).")); }
+        return;
+      }
+
+      /* headline */
+      if (calibrated) {
+        $("#score-label").textContent = "Estimated probability of " + TEXT.outcome;
+        $("#score").textContent = fmtPct(score);
+        $("#score-ref").textContent = "Development cohort overall: " + (config.model.event_rate * 100).toFixed(1) + "%";
+        $("#calib-note").hidden = true;
+      } else {
+        $("#score-label").textContent = "Model score (uncalibrated, 0–1)";
+        $("#score").textContent = fmtScore(score);
+        var diff = final - base;
+        $("#score-ref").textContent = "Model baseline: " + fmtScore(ref) + " · this patient is " +
+          (Math.abs(diff) < 0.005 ? "at" : (diff > 0 ? "above" : "below")) + " that level (" + signed(diff, 2) + " log-odds)";
+        var spw = model.scalePosWeight;
+        var note = $("#calib-note"); note.hidden = false; note.textContent = "";
+        note.appendChild(h("b", { text: "Not a probability. " }));
+        note.appendChild(document.createTextNode("This score is the model's raw output" +
+          (spw && spw !== 1 ? ", trained with a class weight of " + trim(spw, 1) + " for the rarer outcome, which inflates it" : "") +
+          ". Use it to compare patients and to see which factors matter, not as a percentage risk."));
+      }
+      $("#mini-text").textContent = calibrated ? ("Probability " + $("#score").textContent) : ("Model score " + $("#score").textContent);
+      $("#minibar").hidden = false;
+
+      /* notes */
+      var notes = $("#notes"); notes.textContent = "";
+      if (entered < total * 0.5) {
+        notes.appendChild(h("div", { class: "note" }, "Only " + entered + " of " + total + " inputs entered. Missing values follow the model's learned default path, so the result is less reliable."));
+      } else if (entered < total) {
+        notes.appendChild(h("div", { class: "note info" }, entered + " of " + total + " inputs entered; missing values follow the model's learned default path."));
+      }
+      warnings.forEach(function (w) { notes.appendChild(h("div", { class: "note" + (w.t === "err" ? " err" : "") }, w.s)); });
+
+      /* contributions on the displayed scale */
+      var rows = config.feature_order.map(function (name, i) {
+        return { name: name, phi: r.phi[i] * calB, v: values[name] };
+      }).sort(function (a, b) { return Math.abs(b.phi) - Math.abs(a.phi); });
+
+      drawWaterfall(rows, base, final, score, ref);
+      drawTable(rows, base, final);
+    }
+
+    function featLabel(row) {
+      var t = valueText(row.name, row.v);
+      return { n: title(row.name), v: t === null ? "not entered" : t, na: t === null };
+    }
+
+    function niceTicks(min, max, count) {
+      var raw = (max - min) / count, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+      var step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p, out = [];
+      for (var v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) out.push(+v.toFixed(10));
+      return out;
+    }
+
+    function drawWaterfall(rows, base, final, score, ref) {
+      var sel = $("#topn").value, topN = sel === "all" ? rows.length : Math.min(+sel, rows.length);
+      var shown = rows.slice(0, topN), rest = rows.slice(topN);
+      var items = shown.map(function (x) { return { phi: x.phi, label: featLabel(x), row: x }; });
+      if (rest.length) {
+        var s = rest.reduce(function (a, x) { return a + x.phi; }, 0);
+        items.push({ phi: s, other: true, label: { n: "Other " + rest.length + " features", v: "combined", na: false } });
+      }
+      var cum = base, lo = base, hi = base;
+      items.forEach(function (it) { it.start = cum; cum += it.phi; it.end = cum; lo = Math.min(lo, it.end); hi = Math.max(hi, it.end); });
+      lo = Math.min(lo, final); hi = Math.max(hi, final);
+      var span = Math.max(hi - lo, 0.6), pad = span * 0.17, d0 = lo - pad, d1 = hi + pad;
+      var pos = function (v) { return (v - d0) / (d1 - d0) * 100; };
+
+      var box = $("#wf"); box.textContent = "";
+      var wf = h("div", { class: "wf", role: "img", "aria-label": "Waterfall chart of feature contributions; a table view is available." });
+      var ticks = niceTicks(d0, d1, 5), grid = h("div", { class: "wf-grid" });
+      ticks.forEach(function (t) { grid.appendChild(h("div", { class: "gl", style: "left:" + pos(t) + "%" })); });
+      grid.appendChild(h("div", { class: "bl", style: "left:" + pos(base) + "%" }));
+      wf.appendChild(grid);
+
+      function edgeRow(name, sub, at, valText) {
+        var row = h("div", { class: "wf-row edge", tabindex: "0" },
+          h("div", { class: "wf-label" }, h("span", { class: "n", text: name }), h("span", { class: "v", text: sub })),
+          h("div", { class: "wf-plot" },
+            h("div", { class: "mk", style: "left:" + pos(at) + "%" }),
+            h("span", { class: "val", style: "left:calc(" + pos(at) + "% + 8px)", text: valText })));
+        return row;
+      }
+      wf.appendChild(edgeRow("Model baseline", "reference level", base, (calibrated ? fmtPct(ref) : fmtScore(ref))));
+      items.forEach(function (it) {
+        var up = it.phi >= 0, a = pos(Math.min(it.start, it.end)), b = pos(Math.max(it.start, it.end));
+        var valTxt = signed(it.phi, 2);
+        var label = h("div", { class: "wf-label" }, h("span", { class: "n", text: it.label.n, title: it.label.n }),
+          h("span", { class: "v" + (it.label.na ? " na" : ""), text: (it.other ? "" : "= ") + it.label.v }));
+        var plot = h("div", { class: "wf-plot" },
+          h("div", { class: "bar " + (up ? "up" : "down"), style: "left:" + a + "%;width:" + Math.max(b - a, 0.4) + "%" }),
+          h("span", { class: "val", style: up ? "left:calc(" + b + "% + 6px)" : "right:calc(" + (100 - a) + "% + 6px)", text: valTxt }));
+        var row = h("div", { class: "wf-row", tabindex: "0" }, label, plot);
+        var odds = Math.exp(it.phi);
+        var tipHtml = "<b>" + it.label.n + "</b><br>" + (it.other ? "Sum of the remaining " + rest.length + " features" : (it.label.na ? "not entered (model's default path)" : it.label.v)) +
+          "<br>" + (up ? "Raises" : "Lowers") + " the " + (calibrated ? "risk" : "score") + ": " + valTxt + " log-odds (odds ×" + odds.toFixed(2) + ")";
+        attachTip(row, tipHtml);
+        wf.appendChild(row);
+      });
+      wf.appendChild(edgeRow("This patient", "result", final, (calibrated ? fmtPct(score) : fmtScore(score))));
+
+      var axis = h("div", { class: "wf-axis" });
+      ticks.forEach(function (t) {
+        axis.appendChild(h("div", { class: "tk", style: "left:" + pos(t) + "%" }, trim(t, 2), h("br"),
+          h("span", { text: calibrated ? fmtPct(sigmoid(t)) : fmtScore(sigmoid(t)) })));
+      });
+      wf.appendChild(axis);
+      wf.appendChild(h("div", { class: "axis-cap", text: "Model output in log-odds (second line: " + (calibrated ? "probability" : "score") + "). Dashed line = model baseline." }));
+      box.appendChild(wf);
+    }
+
+    function drawTable(rows, base, final) {
+      var t = h("table", { class: "ctable" },
+        h("thead", null, h("tr", null, h("th", { text: "Feature" }), h("th", { text: "Value" }), h("th", { class: "num", text: "Contribution" }), h("th", { class: "num", text: "Odds ×" }))),
+        h("tbody"));
+      var tb = t.lastChild;
+      rows.forEach(function (x) {
+        var l = featLabel(x);
+        tb.appendChild(h("tr", null, h("td", { text: l.n }), h("td", { text: l.v }), h("td", { class: "num", text: signed(x.phi, 3) }), h("td", { class: "num", text: Math.exp(x.phi).toFixed(2) })));
+      });
+      tb.appendChild(h("tr", null, h("td", { text: "Model baseline (starting point)" }), h("td"), h("td", { class: "num", text: trim(base, 3) }), h("td")));
+      tb.appendChild(h("tr", null, h("td", { text: "This patient (sum)" }), h("td"), h("td", { class: "num", text: trim(final, 3) }), h("td")));
+      var box = $("#tbl"); box.textContent = "";
+      box.appendChild(h("p", { class: "hint", text: "Contributions are SHAP values in log-odds, sorted by size. Starting point plus all contributions equals this patient's model output." }));
+      box.appendChild(t);
+    }
+
+    /* tooltip */
+    var tip = $("#tip");
+    function attachTip(el, html) {
+      function show(e) {
+        tip.innerHTML = html; tip.style.display = "block";
+        var x = (e.clientX !== undefined && e.type !== "focus") ? e.clientX : el.getBoundingClientRect().left + 40;
+        var y = (e.clientY !== undefined && e.type !== "focus") ? e.clientY : el.getBoundingClientRect().top;
+        tip.style.left = Math.min(x + 14, window.innerWidth - tip.offsetWidth - 8) + "px";
+        tip.style.top = Math.max(8, y - tip.offsetHeight - 10) + "px";
+      }
+      el.addEventListener("mousemove", show); el.addEventListener("focus", show);
+      el.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+      el.addEventListener("blur", function () { tip.style.display = "none"; });
+    }
+
+    /* about */
+    var m = config.model, about = $("#about");
+    function kv(k, v) { return [h("dt", { text: k }), h("dd", { text: v })]; }
+    var dl = h("dl", { class: "kv" });
+    [].concat(
+      kv("Model", m.name + " (version " + m.version + ", exported " + m.exported + ")"),
+      kv("Algorithm", "Gradient-boosted trees (XGBoost " + m.xgboost_version + "), " + m.n_trees + " trees, objective " + m.objective),
+      kv("Development data", m.n_train.toLocaleString("en-US") + " patients; outcome rate " + (m.event_rate * 100).toFixed(1) + "%"),
+      kv("Output", calibrated ? "Probability, calibrated with " + cal.method + " scaling" : "Raw model score (not calibrated)")
+    ).forEach(function (n) { dl.appendChild(n); });
+    about.appendChild(h("h2", { text: "About this tool" }));
+    about.appendChild(h("details", { open: "" }, h("summary", { text: "Model details" }), dl));
+    about.appendChild(h("details", null, h("summary", { text: "How to read the explanation chart" }),
+      h("p", { text: "Each bar shows how much one input moves the model's output away from its baseline. Red bars push the result up, blue bars push it down. The baseline is the model's average output over its development data, as the model weighted that data; it is a reference level for the chart and is not the same as the overall outcome rate of the cohort. The contributions are SHAP values computed exactly for this model (TreeSHAP) in log-odds units, and together with the starting point they add up to the final value. A feature that was left empty still contributes, because the model sends missing values down a learned default branch. Contributions describe how the model uses its inputs, not causes." })));
+    about.appendChild(h("details", null, h("summary", { text: "Calculated fields" }),
+      h("p", { text: "Change is the 2nd result minus the 1st result. Status is 0 (below range), 1 (in range) or 2 (above range) compared with the reference range shown next to each test; hemoglobin ranges depend on sex, so sex must be entered for its status to be calculated. If you overwrite a calculated field, make sure it stays consistent with the results it is derived from." })));
+    about.appendChild(h("details", null, h("summary", { text: "Limitations and disclaimer" }),
+      h("p", { text: TEXT.disclaimer }),
+      h("p", { text: "Predictions are only as good as the data the model was developed on and may not transfer to other laboratories, units of measurement or populations. Values far outside the development range are flagged. All calculations run locally in your browser; no data is uploaded or stored." })));
+
+    var noun = calibrated ? "risk" : "score";
+    $("#lg-up").textContent = "raises the " + noun + " (+)";
+    $("#lg-down").textContent = "lowers the " + noun + " (−)";
+    $("#app").hidden = false; about.hidden = false;
+    update();
+  }
+})();
+</script>
+</body>
+</html>

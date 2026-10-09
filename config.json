@@ -1,0 +1,1164 @@
+{
+  "model": {
+    "name": "Progression risk model",
+    "version": "1.0.0",
+    "exported": "2026-10-09",
+    "xgboost_version": "1.5.2",
+    "file": "model.json",
+    "n_trees": 400,
+    "objective": "binary:logistic",
+    "base_value_margin": 0.18766069412231445,
+    "enable_categorical": false,
+    "n_train": 63453,
+    "event_rate": 0.022
+  },
+  "missing_policy": "native",
+  "calibration": {
+    "method": "platt",
+    "intercept": -3.2592951106863537,
+    "slope": 0.8082832534678449
+  },
+  "feature_order": [
+    "prev_Malig_10y",
+    "prev_Infection_Hospt_5Y",
+    "Age",
+    "ALC_value_1st",
+    "ALC_value_2nd",
+    "ALC_Delta",
+    "PHOSPHATASE_ALKALINE_value_1st",
+    "PHOSPHATASE_ALKALINE_value_2nd",
+    "PHOSPHATASE_ALKALINE_Delta",
+    "ALBUMIN_value_1st",
+    "ALBUMIN_value_2nd",
+    "ALBUMIN_Delta",
+    "PROTEIN_TOTAL_value_1st",
+    "PROTEIN_TOTAL_value_2nd",
+    "PROTEIN_TOTAL_Delta",
+    "Lymp_Percent_value_1st",
+    "Lymp_Percent_value_2nd",
+    "Lymp_Percent_Delta",
+    "WBC_value_1st",
+    "WBC_value_2nd",
+    "WBC_Delta",
+    "HBG_value_1st",
+    "HBG_value_2nd",
+    "HBG_Delta",
+    "PLT_value_1st",
+    "PLT_value_2nd",
+    "PLT_Delta",
+    "PHOSPHATASE_ALKALINE_status_1st",
+    "PHOSPHATASE_ALKALINE_status_2nd",
+    "ALBUMIN_status_1st",
+    "ALBUMIN_status_2nd",
+    "PROTEIN_TOTAL_status_1st",
+    "PROTEIN_TOTAL_status_2nd",
+    "Lymp_Percent_status_1st",
+    "Lymp_Percent_status_2nd",
+    "WBC_status_1st",
+    "WBC_status_2nd",
+    "HBG_status_1st",
+    "HBG_status_2nd",
+    "PLT_status_1st",
+    "PLT_status_2nd",
+    "Sex"
+  ],
+  "features": [
+    {
+      "name": "prev_Malig_10y",
+      "label": "prev_Malig_10y",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 0,
+      "median": 0,
+      "mean": 0.1,
+      "sd": 0.4,
+      "soft_min": 0,
+      "soft_max": 2,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0
+    },
+    {
+      "name": "prev_Infection_Hospt_5Y",
+      "label": "prev_Infection_Hospt_5Y",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 0,
+      "median": 0,
+      "mean": 0.1,
+      "sd": 0.3,
+      "soft_min": 0,
+      "soft_max": 2,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0
+    },
+    {
+      "name": "Age",
+      "label": "Age",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 1,
+      "pct_missing": 0.0,
+      "decimals": 0,
+      "median": 63,
+      "mean": 63.5,
+      "sd": 13.5,
+      "soft_min": 33,
+      "soft_max": 95,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 63
+    },
+    {
+      "name": "ALC_value_1st",
+      "label": "ALC_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 4.3,
+      "mean": 4.3505,
+      "sd": 0.286,
+      "soft_min": 4,
+      "soft_max": 5,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 4.3
+    },
+    {
+      "name": "ALC_value_2nd",
+      "label": "ALC_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 4.3,
+      "mean": 4.3559,
+      "sd": 0.2883,
+      "soft_min": 4,
+      "soft_max": 5,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 4.3
+    },
+    {
+      "name": "ALC_Delta",
+      "label": "ALC_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 0,
+      "mean": 0.0054,
+      "sd": 0.3785,
+      "soft_min": -0.901,
+      "soft_max": 0.901,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "ALC_value_2nd",
+        "subtrahend": "ALC_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "PHOSPHATASE_ALKALINE_value_1st",
+      "label": "PHOSPHATASE_ALKALINE_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 6362,
+      "pct_missing": 10.0,
+      "decimals": 3,
+      "median": 79,
+      "mean": 85.5045,
+      "sd": 42.9989,
+      "soft_min": 32,
+      "soft_max": 268,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 79
+    },
+    {
+      "name": "PHOSPHATASE_ALKALINE_value_2nd",
+      "label": "PHOSPHATASE_ALKALINE_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 6362,
+      "pct_missing": 10.0,
+      "decimals": 3,
+      "median": 79,
+      "mean": 85.4628,
+      "sd": 48.6953,
+      "soft_min": 32,
+      "soft_max": 296.551,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 79
+    },
+    {
+      "name": "PHOSPHATASE_ALKALINE_Delta",
+      "label": "PHOSPHATASE_ALKALINE_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 6362,
+      "pct_missing": 10.0,
+      "decimals": 3,
+      "median": 0,
+      "mean": -0.0418,
+      "sd": 42.9864,
+      "soft_min": -127.64,
+      "soft_max": 139,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "PHOSPHATASE_ALKALINE_value_2nd",
+        "subtrahend": "PHOSPHATASE_ALKALINE_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "ALBUMIN_value_1st",
+      "label": "ALBUMIN_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13753,
+      "pct_missing": 21.7,
+      "decimals": 3,
+      "median": 4.13,
+      "mean": 4.0779,
+      "sd": 0.4643,
+      "soft_min": 2.2,
+      "soft_max": 5,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 4.13
+    },
+    {
+      "name": "ALBUMIN_value_2nd",
+      "label": "ALBUMIN_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13753,
+      "pct_missing": 21.7,
+      "decimals": 3,
+      "median": 4.15,
+      "mean": 4.0866,
+      "sd": 0.4581,
+      "soft_min": 2.2,
+      "soft_max": 5,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 4.15
+    },
+    {
+      "name": "ALBUMIN_Delta",
+      "label": "ALBUMIN_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13753,
+      "pct_missing": 21.7,
+      "decimals": 3,
+      "median": 0,
+      "mean": 0.0086,
+      "sd": 0.3246,
+      "soft_min": -1.201,
+      "soft_max": 1.301,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "ALBUMIN_value_2nd",
+        "subtrahend": "ALBUMIN_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "PROTEIN_TOTAL_value_1st",
+      "label": "PROTEIN_TOTAL_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13731,
+      "pct_missing": 21.6,
+      "decimals": 3,
+      "median": 7.2,
+      "mean": 7.1987,
+      "sd": 0.6552,
+      "soft_min": 5.1,
+      "soft_max": 8.801,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 7.2
+    },
+    {
+      "name": "PROTEIN_TOTAL_value_2nd",
+      "label": "PROTEIN_TOTAL_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13731,
+      "pct_missing": 21.6,
+      "decimals": 3,
+      "median": 7.2,
+      "mean": 7.1654,
+      "sd": 0.6529,
+      "soft_min": 4.8,
+      "soft_max": 8.7,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 7.2
+    },
+    {
+      "name": "PROTEIN_TOTAL_Delta",
+      "label": "PROTEIN_TOTAL_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 13731,
+      "pct_missing": 21.6,
+      "decimals": 3,
+      "median": 0,
+      "mean": -0.0333,
+      "sd": 0.5783,
+      "soft_min": -2.168,
+      "soft_max": 1.8,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "PROTEIN_TOTAL_value_2nd",
+        "subtrahend": "PROTEIN_TOTAL_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "Lymp_Percent_value_1st",
+      "label": "Lymp_Percent_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 41,
+      "mean": 41.1784,
+      "sd": 7.9045,
+      "soft_min": 18.6,
+      "soft_max": 64.7,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 41
+    },
+    {
+      "name": "Lymp_Percent_value_2nd",
+      "label": "Lymp_Percent_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 41,
+      "mean": 41.0539,
+      "sd": 8.094,
+      "soft_min": 15.8,
+      "soft_max": 65,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 41
+    },
+    {
+      "name": "Lymp_Percent_Delta",
+      "label": "Lymp_Percent_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 0,
+      "mean": -0.1245,
+      "sd": 6.5461,
+      "soft_min": -22.774,
+      "soft_max": 21.3,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "Lymp_Percent_value_2nd",
+        "subtrahend": "Lymp_Percent_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "WBC_value_1st",
+      "label": "WBC_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 10.584,
+      "mean": 11.0441,
+      "sd": 3.8644,
+      "soft_min": 6.666,
+      "soft_max": 23.488,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 10.584
+    },
+    {
+      "name": "WBC_value_2nd",
+      "label": "WBC_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 2,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 10.618,
+      "mean": 11.1755,
+      "sd": 4.5882,
+      "soft_min": 6.656,
+      "soft_max": 27.666,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 10.618
+    },
+    {
+      "name": "WBC_Delta",
+      "label": "WBC_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 2,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 0.037,
+      "mean": 0.1315,
+      "sd": 4.6179,
+      "soft_min": -9.024,
+      "soft_max": 12.477,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0.037,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "WBC_value_2nd",
+        "subtrahend": "WBC_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "HBG_value_1st",
+      "label": "HBG_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 13.7,
+      "mean": 13.6471,
+      "sd": 1.6491,
+      "soft_min": 8.6,
+      "soft_max": 17.601,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 13.7
+    },
+    {
+      "name": "HBG_value_2nd",
+      "label": "HBG_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 13.7,
+      "mean": 13.6023,
+      "sd": 1.6569,
+      "soft_min": 8.4,
+      "soft_max": 17.5,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 13.7
+    },
+    {
+      "name": "HBG_Delta",
+      "label": "HBG_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 0,
+      "mean": -0.0448,
+      "sd": 0.9979,
+      "soft_min": -3.601,
+      "soft_max": 3.401,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 0,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "HBG_value_2nd",
+        "subtrahend": "HBG_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "PLT_value_1st",
+      "label": "PLT_value_1st",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 278,
+      "mean": 288.9711,
+      "sd": 94.0255,
+      "soft_min": 71,
+      "soft_max": 664,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 278
+    },
+    {
+      "name": "PLT_value_2nd",
+      "label": "PLT_value_2nd",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": 278,
+      "mean": 288.0526,
+      "sd": 94.8784,
+      "soft_min": 65,
+      "soft_max": 655,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": 278
+    },
+    {
+      "name": "PLT_Delta",
+      "label": "PLT_Delta",
+      "unit": "",
+      "type": "continuous",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "decimals": 3,
+      "median": -1,
+      "mean": -0.9186,
+      "sd": 65.4714,
+      "soft_min": -244,
+      "soft_max": 231,
+      "hard_min": null,
+      "hard_max": null,
+      "impute_value": -1,
+      "derived": true,
+      "rule": {
+        "kind": "delta",
+        "minuend": "PLT_value_2nd",
+        "subtrahend": "PLT_value_1st",
+        "decimals": 3
+      }
+    },
+    {
+      "name": "PHOSPHATASE_ALKALINE_status_1st",
+      "label": "PHOSPHATASE_ALKALINE_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 6362,
+      "pct_missing": 10.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PHOSPHATASE_ALKALINE_value_1st",
+        "low": 40,
+        "high": 130,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "PHOSPHATASE_ALKALINE_status_2nd",
+      "label": "PHOSPHATASE_ALKALINE_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 6362,
+      "pct_missing": 10.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PHOSPHATASE_ALKALINE_value_2nd",
+        "low": 40,
+        "high": 130,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "ALBUMIN_status_1st",
+      "label": "ALBUMIN_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 13753,
+      "pct_missing": 21.7,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "ALBUMIN_value_1st",
+        "low": 3.5,
+        "high": 5.2,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "ALBUMIN_status_2nd",
+      "label": "ALBUMIN_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 13753,
+      "pct_missing": 21.7,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "ALBUMIN_value_2nd",
+        "low": 3.5,
+        "high": 5.2,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "PROTEIN_TOTAL_status_1st",
+      "label": "PROTEIN_TOTAL_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 13731,
+      "pct_missing": 21.6,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PROTEIN_TOTAL_value_1st",
+        "low": 6.0,
+        "high": 8.3,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "PROTEIN_TOTAL_status_2nd",
+      "label": "PROTEIN_TOTAL_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 13731,
+      "pct_missing": 21.6,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PROTEIN_TOTAL_value_2nd",
+        "low": 6.0,
+        "high": 8.3,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "Lymp_Percent_status_1st",
+      "label": "Lymp_Percent_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 292,
+      "pct_missing": 0.5,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "Lymp_Percent_value_1st",
+        "low": 20,
+        "high": 40,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "Lymp_Percent_status_2nd",
+      "label": "Lymp_Percent_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 372,
+      "pct_missing": 0.6,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "Lymp_Percent_value_2nd",
+        "low": 20,
+        "high": 40,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "WBC_status_1st",
+      "label": "WBC_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "WBC_value_1st",
+        "low": 4.5,
+        "high": 11.0,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "WBC_status_2nd",
+      "label": "WBC_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 2,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "WBC_value_2nd",
+        "low": 4.5,
+        "high": 11.0,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "HBG_status_1st",
+      "label": "HBG_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "HBG_value_1st",
+        "by": "Sex",
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ],
+        "ranges": {
+          "1": {
+            "low": 13.5,
+            "high": 17.5,
+            "sex": "M"
+          },
+          "0": {
+            "low": 12.0,
+            "high": 15.5,
+            "sex": "F"
+          }
+        }
+      }
+    },
+    {
+      "name": "HBG_status_2nd",
+      "label": "HBG_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "HBG_value_2nd",
+        "by": "Sex",
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ],
+        "ranges": {
+          "1": {
+            "low": 13.5,
+            "high": 17.5,
+            "sex": "M"
+          },
+          "0": {
+            "low": 12.0,
+            "high": 15.5,
+            "sex": "F"
+          }
+        }
+      }
+    },
+    {
+      "name": "PLT_status_1st",
+      "label": "PLT_status_1st",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PLT_value_1st",
+        "low": 150,
+        "high": 450,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "PLT_status_2nd",
+      "label": "PLT_status_2nd",
+      "unit": "",
+      "type": "ordinal",
+      "n_missing": 0,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "Below range"
+        },
+        {
+          "value": 1,
+          "label": "In range"
+        },
+        {
+          "value": 2,
+          "label": "Above range"
+        }
+      ],
+      "impute_value": 1,
+      "derived": true,
+      "rule": {
+        "kind": "status",
+        "source": "PLT_value_2nd",
+        "low": 150,
+        "high": 450,
+        "labels": [
+          "Below range",
+          "In range",
+          "Above range"
+        ]
+      }
+    },
+    {
+      "name": "Sex",
+      "label": "Sex",
+      "unit": "",
+      "type": "categorical",
+      "n_missing": 1,
+      "pct_missing": 0.0,
+      "levels": [
+        {
+          "value": 0,
+          "label": "0"
+        },
+        {
+          "value": 1,
+          "label": "1"
+        }
+      ],
+      "impute_value": 0
+    }
+  ],
+  "primary_features": [
+    "prev_Malig_10y",
+    "prev_Infection_Hospt_5Y",
+    "Age",
+    "ALC_value_1st",
+    "ALC_value_2nd",
+    "PHOSPHATASE_ALKALINE_value_1st",
+    "PHOSPHATASE_ALKALINE_value_2nd",
+    "ALBUMIN_value_1st",
+    "ALBUMIN_value_2nd",
+    "PROTEIN_TOTAL_value_1st",
+    "PROTEIN_TOTAL_value_2nd",
+    "Lymp_Percent_value_1st",
+    "Lymp_Percent_value_2nd",
+    "WBC_value_1st",
+    "WBC_value_2nd",
+    "HBG_value_1st",
+    "HBG_value_2nd",
+    "PLT_value_1st",
+    "PLT_value_2nd",
+    "Sex"
+  ],
+  "derived_features": [
+    "ALC_Delta",
+    "PHOSPHATASE_ALKALINE_Delta",
+    "ALBUMIN_Delta",
+    "PROTEIN_TOTAL_Delta",
+    "Lymp_Percent_Delta",
+    "WBC_Delta",
+    "HBG_Delta",
+    "PLT_Delta",
+    "PHOSPHATASE_ALKALINE_status_1st",
+    "PHOSPHATASE_ALKALINE_status_2nd",
+    "ALBUMIN_status_1st",
+    "ALBUMIN_status_2nd",
+    "PROTEIN_TOTAL_status_1st",
+    "PROTEIN_TOTAL_status_2nd",
+    "Lymp_Percent_status_1st",
+    "Lymp_Percent_status_2nd",
+    "WBC_status_1st",
+    "WBC_status_2nd",
+    "HBG_status_1st",
+    "HBG_status_2nd",
+    "PLT_status_1st",
+    "PLT_status_2nd"
+  ],
+  "derived_policy": {
+    "editable": true,
+    "blank_if_source_blank": true,
+    "status_rule": "below range if value < low; above range if value > high; otherwise in range"
+  }
+}
